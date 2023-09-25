@@ -1,26 +1,68 @@
-<script lang="ts">
-    import { auth } from '../lib/firebase';
-    import { userStore } from 'sveltefire';
+<script lang='ts'>
+    import { SignedIn, SignedOut } from 'sveltefire';
+    import { signInWithEmailAndPassword } from "firebase/auth";
+    import { signOut } from "firebase/auth";
+    import { createUserWithEmailAndPassword } from 'firebase/auth';
+    import { User } from "sveltefire";
+    import { Collection } from 'sveltefire';
+    import { Doc } from 'sveltefire';
+	import { documentId } from 'firebase/firestore';
 
-    // import * from '$lib/firebase';
-
-    let user = userStore(auth);
-    console.log(user);
-    user.subscribe(userStore(auth));
-    // let user = 5;
+    let email: string;
+    let password: string;
 </script>
 
+<SignedIn let:auth let:user>
+    <h1>Cybernetically Enhanced and Signed in.</h1>
+    <h1>{user.uid}</h1>
 
-<!-- {# if user}
-<h1>Welcome to SvelteKit with SvelteFire {$user?.displayName}</h1>
-{:else if } -->
+    <button on:click={() => signOut(auth)}>Sign Out</button>
+</SignedIn>
 
-{user}
+<SignedIn let:user>
+    
+    <p>Howdy, {user.uid}</p>
 
-{#if $user}
-    <p>Hi {$user.uid}</p>
-{:else}
-    <p>Sign in...</p>
-{/if}
+    <!-- 📜 Get a Firestore document owned by a user in Proompts collection -->
+    <Collection ref={`guides`} let:data={guides}>
+        <h3>Guides!</h3>
+        {#each guides as guide}
+            {#if user.uid === guide.uid}
+                <div>
+                    <h2>{guide.id}</h2>
+                    <h3>{guide.text}</h3>
 
-<p>Noot?</p>
+                    <!-- 💬 Get all the games played under that guide -->
+                    <Collection ref={`games`} let:data={games}>
+                        <h5>Games!</h5>
+                        {#each games as game}
+                            {#if guide.id === game.guideID}
+                                <div>
+                                    <p>{game.id}</p>
+                                    <p>{game.response}</p>
+                                    <p>Solved: {game.solved}</p>
+                                </div>
+                            {/if}
+                        {/each}
+                    </Collection>
+                </div>
+            {/if}
+        {/each}
+    </Collection>
+
+</SignedIn>
+
+
+<SignedOut let:auth>
+    You must be signed in to see this!
+    <input bind:value={email}/>
+    <input bind:value={password}/>
+    <button on:click={() => signInWithEmailAndPassword(auth, email, password)}>Sign In</button>
+</SignedOut>
+
+<SignedOut let:auth>
+    Alternately, you can create a new account.
+    <button on:click={() => createUserWithEmailAndPassword(auth, email, password)}>Sign Up</button>
+</SignedOut>
+
+
