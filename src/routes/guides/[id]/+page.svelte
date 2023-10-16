@@ -31,6 +31,11 @@
         {:else}
         <h1>{data.text}</h1>
         {/if}
-        <button on:click={modifyGuide(firestore, $page, user, guide)}>Save Guide</button>    
+        <button on:click={modifyGuide(firestore, $page, user, guide)}>Save Guide</button>   
+        
+        <div class='card-new'>
+            <a href={'/games/new/' + $page.params.id}><p>Let's try out this prompt!</p></a>
+        </div>
     </Doc>
+
 </SignedIn>

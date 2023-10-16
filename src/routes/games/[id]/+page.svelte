@@ -9,6 +9,6 @@
 <SignedIn let:auth let:user>
     <Doc ref={'games/' + $page.params.id} let:data>
         <h1>{user.email}</h1>
-        <h1>{data.text}</h1>
+        <h1>{data.messages}</h1>
     </Doc>
 </SignedIn>
